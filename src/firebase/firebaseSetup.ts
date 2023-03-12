@@ -1,0 +1,260 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, updateDoc, getDoc, getCountFromServer, collection, query, where, deleteDoc } from 'firebase/firestore'
+import { getAuth, applyActionCode } from 'firebase/auth'
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { setDoc } from 'firebase/firestore';
+import { getAnalytics } from "firebase/analytics";
+
+console.log(process.env.NEXT_PUBLIC_STAGE === 'dev')
+
+// Initialize Firebase
+const app = initializeApp({
+  apiKey: "AIzaSyAUTMx89j6lV6-R5EGn0yRWtAL5tu2SjLs",
+  authDomain: "freerangeeggfarm-26736.firebaseapp.com",
+  projectId: "freerangeeggfarm-26736",
+  storageBucket: "freerangeeggfarm-26736.appspot.com",
+  messagingSenderId: "471292011029",
+  appId: "1:471292011029:web:b24d4e5a4f993aa860641c"
+});
+
+// apiKey: "AIzaSyAUTMx89j6lV6-R5EGn0yRWtAL5tu2SjLs",
+// authDomain: "freerangeeggfarm-26736.firebaseapp.com",
+// projectId: "freerangeeggfarm-26736",
+// storageBucket: "freerangeeggfarm-26736.appspot.com",
+// messagingSenderId: "471292011029",
+// appId: "1:471292011029:web:b24d4e5a4f993aa860641c"
+
+// Initialize services
+export const auth = getAuth(app);
+export const db = getFirestore();
+export const functions = getFunctions(app);
+
+export function setupFirebaseClientSideMonitoring() {
+  const loadFirebasePerformance = async () => {
+    const { getPerformance } = await import('firebase/performance');
+    const perf = getPerformance();
+  };
+  if (typeof window !== 'undefined') {
+    const analytics = getAnalytics();
+    loadFirebasePerformance();
+
+    /* eslint-disable-next-line no-restricted-globals */
+    if (typeof self !== 'undefined' && process.env.NEXT_PUBLIC_STAGE === 'dev') { self.FIREBASE_APPCHECK_DEBUG_TOKEN = process.env.NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN; }
+    const reCaptchaV3ProviderKeyMap: Record<string, string> = {
+      dev: '6LdvAsAjAAAAAIdzKR1hpgWpePmJIXoYbdaO7tTL',
+      preprod: '6LdvAsAjAAAAAIdzKR1hpgWpePmJIXoYbdaO7tTL',
+      prod: '6LcRfxckAAAAALV7tR5ehg14VSTvMHmMzdH_2H-M'
+    }
+    const appCheck = initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(reCaptchaV3ProviderKeyMap[process.env.NEXT_PUBLIC_STAGE]),
+
+      // Optional argument. If true, the SDK automatically refreshes App Check
+      // tokens as needed.
+      isTokenAutoRefreshEnabled: true
+    });
+  }
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var FIREBASE_APPCHECK_DEBUG_TOKEN: boolean | string | undefined;
+}
+
+
+
+//Hide comments on production
+if (process.env.NEXT_PUBLIC_STAGE === "prod") {
+  console.log = function() {};
+}
+
+//data types
+interface Location {
+  city: string,
+  country: Country
+}
+
+export interface ContactChannels {
+  email?: string,
+  phone?: string,
+  whatsapp?: string,
+  wechat?: string
+}
+
+interface ProductDetails {
+  capacity: number,
+  objectiveCapacity: number,
+  unit: string
+}
+
+interface CertificationFile {
+  name: string,
+  url: string
+}
+
+interface Image {
+  uuid: string,
+  data_url: string
+}
+
+interface ProductionDetails {
+  productionSystem: Array<string>,
+  certification: string,
+  certifyingOrganization: string,
+  certificationFile: CertificationFile,
+}
+
+export interface Country {
+  label: string,
+  value: string
+}
+
+export interface SellerData {
+  //Meta
+  status: 'incomplete' | 'pending' | 'approved' | 'rejected' | 'claimedSkeletonAccount',
+  adminLastStatusUpdate: Date,
+  creationDate: Date,
+  claimed: boolean,
+
+  //Basics
+  organizationName: string,
+  website: string,
+
+  //locations
+  locations: Array<Location>,
+  distributionCountries: Array<Country>,
+
+  //Contact
+  name: string,
+  jobTitle: string,
+  contactChannels: ContactChannels,
+
+  //Product details
+  productDetails: Record<string, ProductDetails>,
+  maxObjectiveCapacity: number,
+
+  //Production details
+  productionDetails: ProductionDetails
+
+  //Imagery
+  images: Array<Image>,
+  logos: Array<Image>
+}
+
+//functions
+export async function updateUserInfo(uid: string, data: object) {
+  return new Promise<void>((resolve) => {
+    updateDoc(doc(db, "users", uid), data).then(() => {
+      resolve()
+    })
+  })
+}
+
+export async function getUserInfo(uid: string) {
+  return new Promise((resolve) => {
+    getDoc(doc(db, "users", uid)).then((doc) => {
+      if (doc.exists()) {
+        resolve(doc.data())
+      } else {
+        resolve({})
+      }
+    })
+  })
+}
+
+export async function getBuyer(uid: string) {
+  return new Promise((resolve) => {
+    getDoc(doc(db, "buyers", uid)).then((doc) => {
+      if (doc.exists()) {
+        resolve(doc.data())
+      } else {
+        resolve({})
+      }
+    })
+  })
+}
+
+export async function updateBuyer(uid: string, updateData: object) {
+  return new Promise<void>((resolve) => {
+    updateDoc(doc(db, "buyers", uid), updateData).then(() => {
+      resolve()
+    })
+  })
+}
+
+export async function getCountOfFarmsToDisplay() {
+    const coll = collection(db, "farms")
+    const query_ = query(coll, where('status', '==', 'approved'))
+    const snapshot = await getCountFromServer(query_)
+    return snapshot.data().count
+}
+
+export async function copyOverClaimedProfile(copiedProfileID: string, copyToProfileID: string) {
+  return new Promise<void>((resolve) => {
+    getFarm(copiedProfileID).then((skeletonData) => {
+      setFarm(copyToProfileID, {...skeletonData, claimed:true, status:"incomplete"}).then(() => {
+        updateFarm(copiedProfileID, {status: "claimedSkeletonAccount"}).then(() => {
+          resolve()
+        })
+      })
+    })
+  })
+}
+
+export async function updateFarm(profileID: string, data: object) { 
+  return new Promise<void>((resolve) => {
+    updateDoc(doc(db, "farms", profileID), data).then(() => {
+      resolve()
+    })
+  })
+}
+
+async function setFarm(profileID: string, data: object) { 
+  return new Promise<void>((resolve) => {
+    setDoc(doc(db, "farms", profileID), data).then(() => {
+      resolve()
+    })
+  })
+}
+
+export async function getFarm(profileID: string): Promise<SellerData> {
+  console.log(profileID)
+  return new Promise((resolve) => {
+    getDoc(doc(db, "farms", profileID)).then((doc) => {
+      if (doc.exists()) {
+        resolve(doc.data() as SellerData)
+      }
+    })
+  })
+}
+
+export function sendVerificationEmail() {
+  httpsCallable(functions, 'sendVerificationEmail')({ stage:process.env.NEXT_PUBLIC_STAGE }).then((result) => {console.log(result); })
+}
+
+export async function sendEmailAboutApprovalOrRejection(emailData: object) {
+  await httpsCallable(functions, 'adminActionOnStatus')({ ...emailData, stage:process.env.NEXT_PUBLIC_STAGE })
+  .then((result) => {console.log(result)})
+}
+
+export async function profilependingAdminNotification(isSeller: boolean, uid: string) {
+  await httpsCallable(functions, 'profilependingAdminNotification')({ isSeller, uid })
+  .then((result) => {console.log(result)})
+}
+
+export async function verifyEmailViaActionCode(actionCode: string) {
+  return new Promise<void>((resolve, reject) => {
+    applyActionCode(auth, actionCode).then(() => {
+      resolve()
+    })
+    .catch((error) => {
+      reject(error)
+    })
+  })
+}
+
+export async function deleteBuyerAccount(uid: string) {
+  await deleteDoc(doc(db, "buyers", uid))
+  await deleteDoc(doc(db, "users", uid))
+}
