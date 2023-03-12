@@ -50,14 +50,14 @@ export default function Home(
                   <Trans
                     i18nKey="isSeller"
                     t={t}
-                    components={[<Box fontWeight="Bold" display="inline" />]}
+                    components={[<Box key="0" fontWeight="Bold" display="inline" />]}
                   />
                 </Typography>
                 <Typography variant="p_large" style={{ marginBottom: "48px" }}>
                   <Trans
                     i18nKey="isBuyer"
                     t={t}
-                    components={[<Box fontWeight="Bold" display="inline" />]}
+                    components={[<Box key="0" fontWeight="Bold" display="inline" />]}
                   />
                 </Typography>
                 <Box sx={styles.twoButtons}>
