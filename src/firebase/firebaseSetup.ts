@@ -7,8 +7,6 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { setDoc } from 'firebase/firestore';
 import { getAnalytics } from "firebase/analytics";
 
-console.log(process.env.NEXT_PUBLIC_STAGE === 'dev')
-
 // Initialize Firebase
 const app = initializeApp({
   apiKey: "AIzaSyAUTMx89j6lV6-R5EGn0yRWtAL5tu2SjLs",

@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const { i18n } = require('./next-i18next.config')
+
 const nextConfig = {
   reactStrictMode: true,
   env: {
@@ -10,8 +12,13 @@ const nextConfig = {
     NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
     NEXT_PUBLIC_STAGE: process.env.NEXT_PUBLIC_STAGE,
     NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN: process.env.NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN,
-
-  }
+  },
+  images: {
+    domains: ["localhost"],
+    // next line is not required
+    path: 'http://localhost:3000/images'
+  },
+  i18n
 }
 
 module.exports = nextConfig

@@ -118,169 +118,260 @@ function GlobalNavBar() {
   }
 
   return (
-  <>
-    <AppBar color="secondary" elevation={0} position="sticky" sx={{display:{ xs:'flex', sm:'none'}}}>
-      <Accordion expanded={isAccordionExpanded} elevation={0}>
-        <AccordionSummary expandIcon={accordionIconIsClose ? <CloseIcon onClick={() => handleAccordion()} /> : <MenuIcon onClick={() => handleAccordion()} />}>
-        <Typography color={grey[400]} sx={{ fontWeight: 'bold', textDecoration: "none", alignSelf:'center'}} variant="h6">
-            Cage Free Hub
+    <>
+      <AppBar
+        color="secondary"
+        elevation={0}
+        position="sticky"
+        sx={{ display: { xs: "flex", sm: "none" } }}
+      >
+        <Accordion expanded={isAccordionExpanded} elevation={0}>
+          <AccordionSummary
+            expandIcon={
+              accordionIconIsClose ? (
+                <CloseIcon onClick={() => handleAccordion()} />
+              ) : (
+                <MenuIcon onClick={() => handleAccordion()} />
+              )
+            }
+          >
+            <Typography
+              color={grey[400]}
+              sx={{
+                fontWeight: "bold",
+                textDecoration: "none",
+                alignSelf: "center",
+              }}
+              variant="h6"
+            >
+              Cage Free Hub
+            </Typography>
+            <Box bgcolor="primary.main" sx={{ ...styles.betaBox }}>
+              <Typography
+                color="common.white"
+                variant="h6"
+                component="div"
+                sx={{ fontSize: 12 }}
+              >
+                Beta
+              </Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1 }} />
+            <Button
+              size="square"
+              onClick={() => handleAccordion()}
+              style={{
+                backgroundColor: "#EFFAF9",
+                color: "#3FAB94",
+                border: "0",
+                alignSelf: "center",
+              }}
+              sx={{ marginRight: 2 }}
+            >
+              <HelpOutlineIcon fontSize="support_icon" />
+            </Button>
+          </AccordionSummary>
+          <List>
+            <ListItem
+              button
+              onClick={() => handleAccordion()}
+              sx={{ display: currentUser ? "none" : "block" }}
+            >
+              <Typography variant="p_large" sx={{ margin: "auto" }}>
+                <Link href="/login">Log in</Link>
+              </Typography>
+            </ListItem>
+            <Box sx={{ display: currentUser ? "block" : "none" }}>
+              <ListItem button onClick={() => handleAccordion()}>
+                <Typography variant="p_large" sx={{ margin: "auto" }}>
+                  <Link href={editProfileLink}>Edit profile</Link>
+                </Typography>
+              </ListItem>
+              <Divider />
+              <ListItem
+                button
+                onClick={() => {
+                  handleAccordion();
+                  setTimeout(() => {
+                    logout();
+                  }, 100);
+                }}
+              >
+                <Typography variant="p_large" sx={{ margin: "auto" }}>
+                  Log out
+                </Typography>
+              </ListItem>
+            </Box>
+            <Divider />
+            <SupportPopup />
+            <Divider />
+          </List>
+        </Accordion>
+      </AppBar>
+      <AppBar
+        color="secondary"
+        elevation={0}
+        position="sticky"
+        sx={{ display: { xs: "none", sm: "block" } }}
+      >
+        <Toolbar>
+          <Typography
+            color={grey[400]}
+            sx={{ fontWeight: "bold", textDecoration: "none" }}
+            variant="h6"
+          >
+            <Link href="/">Cage Free Hub</Link>
           </Typography>
-          <Box bgcolor='primary.main' sx={{ ...styles.betaBox }}>
-            <Typography color="common.white" variant="h6" component="div" sx={{ fontSize: 12 }}>
+          <Box bgcolor="primary.main" sx={{ ...styles.betaBox }}>
+            <Typography
+              color="common.white"
+              variant="h6"
+              component="div"
+              sx={{ fontSize: 12 }}
+            >
               Beta
             </Typography>
           </Box>
-          <Box sx={{ flexGrow: 1 }}/>
-          <Button size="square"
-          onClick={() => handleAccordion()}
-          style={{
-            backgroundColor:'#EFFAF9', 
-            color:'#3FAB94',  
-            border:'0',
-            alignSelf:'center'
-          }}
-          sx={{marginRight:2}}>
-            <HelpOutlineIcon fontSize='support_icon'/>
-          </Button>
-        </AccordionSummary>
-        <List>
-          <ListItem button component={Link} to="/login" onClick={() => handleAccordion()} sx={{ display: currentUser ? 'none' : 'block' }}>
-            <Typography variant='p_large' sx={{ margin:'auto' }}>Log in</Typography>
-          </ListItem>
-          <Box sx={{ display: currentUser ? 'block' : 'none' }}>
-            <ListItem button component={Link} to={editProfileLink} onClick={() => handleAccordion()}>
-              <Typography variant='p_large' sx={{ margin:'auto' }}>Edit profile</Typography>
-            </ListItem>
-            <Divider />
-            <ListItem button onClick={() => {handleAccordion();setTimeout(() => {logout()}, 100)}} >
-              <Typography variant='p_large' sx={{ margin:'auto' }}>Log out</Typography>
-            </ListItem>
-          </Box>
-          <Divider />
-          <SupportPopup />
-          <Divider />
-        </List>
-      </Accordion>
-    </AppBar>
-    <AppBar color="secondary" elevation={0} position="sticky" sx={{ display:{ xs:'none', sm:'block'} }}>
-      <Toolbar>
-        <Typography component={Link} to="/" 
-        color={grey[400]} sx={{ fontWeight: 'bold', textDecoration: "none" }} variant="h6">
-          Cage Free Hub
-        </Typography>
-        <Box bgcolor='primary.main' sx={{ ...styles.betaBox }}>
-          <Typography color="common.white" variant="h6" component="div" sx={{ fontSize: 12 }}>
-            Beta
-          </Typography>
-        </Box>
-        <Box sx={{ flexGrow: 1 }}/>
-        <Box sx={{ display:{xs:'none', sm:'flex'}}} >
-          <Box sx={{ marginRight:2}}>
-            <Button variant="outlined" 
-              style={{
-                backgroundColor:'#EFFAF9', 
-                color:'#3FAB94',  
-                border:'0'
-              }}
-              onClick={(e) => setSupportPopupAnchorEl(e.currentTarget)}
-            >
-              <HelpOutlineIcon fontSize='small' style={{ marginRight:6}}/>
-              {t('support')}
-            </Button>
-            <Popover
-              open={Boolean(supportPopupAnchorEl)}
-              anchorEl={supportPopupAnchorEl}
-              onClose={() => setSupportPopupAnchorEl(null)}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-            >
-              <SupportPopup/>
-            </Popover>
-          </Box>
-          <Box>
-            <Button variant='contained' sx={{ display:currentUser?.uid === adminUid ? 'block' : 'none' }} onClick={() => {navigate('/admin')}} >ADMIN PORTAL</Button>
-          </Box>
-          {/* //NO TRANSLATIONS YET */}
-          <Box sx={{ display:'none' }} >
+          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+            <Box sx={{ marginRight: 2 }}>
+              <Button
+                variant="outlined"
+                style={{
+                  backgroundColor: "#EFFAF9",
+                  color: "#3FAB94",
+                  border: "0",
+                }}
+                onClick={(e) => setSupportPopupAnchorEl(e.currentTarget)}
+              >
+                <HelpOutlineIcon fontSize="small" style={{ marginRight: 6 }} />
+                {t("support")}
+              </Button>
+              <Popover
+                open={Boolean(supportPopupAnchorEl)}
+                anchorEl={supportPopupAnchorEl}
+                onClose={() => setSupportPopupAnchorEl(null)}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+              >
+                <SupportPopup />
+              </Popover>
+            </Box>
+            <Box>
+              <Button
+                variant="contained"
+                sx={{
+                  display: currentUser?.uid === adminUid ? "block" : "none",
+                }}
+                onClick={() => {
+                  navigate("/admin");
+                }}
+              >
+                ADMIN PORTAL
+              </Button>
+            </Box>
+            {/* //NO TRANSLATIONS YET */}
+            <Box sx={{ display: "none" }}>
+              <Button
+                size="large"
+                aria-controls="menu-language"
+                aria-haspopup="true"
+                onClick={handleOpenLanguageMenu}
+                color="inherit"
+                sx={{ marginRight: 2, color: "#788492" }}
+              >
+                <LanguageIcon
+                  fontSize="small"
+                  style={{ strokeWidth: "", marginRight: 6 }}
+                />
+                <Typography variant="p_default">{currentLanguage}</Typography>
+              </Button>
+              <Menu
+                id="menu-language"
+                anchorEl={anchorElLanguage}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                keepMounted
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                open={Boolean(anchorElLanguage)}
+                onClose={handleCloseLanguageMenu}
+              >
+                {languages
+                  .filter((language) => language.name !== currentLanguage)
+                  .map((language) => (
+                    <MenuItem
+                      key={language.name}
+                      onClick={() => handleChangeLanguage(language)}
+                    >
+                      {language.name}
+                    </MenuItem>
+                  ))}
+              </Menu>
+            </Box>
             <Button
-              size="large"
-              aria-controls="menu-language"
-              aria-haspopup="true"
-              onClick={handleOpenLanguageMenu} 
-              color="inherit"
-              sx={{ marginRight:2, color:'#788492' }}
+              sx={{ display: currentUser ? "none" : "block" }}
+              variant="outlined"
             >
-              <LanguageIcon fontSize='small' style={{ strokeWidth:'', marginRight:6 }}/>
-              <Typography variant='p_default'>{currentLanguage}</Typography>
+              <Link href="/login">{t("login")}</Link>
             </Button>
-            <Menu 
-              id="menu-language"
-              anchorEl={anchorElLanguage}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              keepMounted
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              open={Boolean(anchorElLanguage)}
-              onClose={handleCloseLanguageMenu}>
-                {(languages.filter((language) => language.name !== currentLanguage)).map((language) => (
-                  <MenuItem key={language.name} onClick={() => handleChangeLanguage(language)}>
-                    {language.name}
-                  </MenuItem>
-                ))}
-            </Menu>
+            <Box sx={{ display: currentUser ? "block" : "none" }}>
+              <IconButton
+                aria-label="idk"
+                aria-controls="logged-in-appbar"
+                aria-haspopup="true"
+                onClick={handleLoggedInMenu}
+              >
+                <AccountCircleIcon />
+              </IconButton>
+              <Menu
+                id="logged-in-appbar"
+                anchorEl={anchorElLoggedIn}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                keepMounted
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                open={Boolean(anchorElLoggedIn)}
+                onClose={handleCloseLoggedInMenu}
+              >
+                <MenuItem
+                  onClick={(e) => {
+                    handleEditProfile(e);
+                  }}
+                >
+                  {t("editProfile")}
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>{t("logout")}</MenuItem>
+              </Menu>
+            </Box>
           </Box>
-          <Button sx={{ display: currentUser ? 'none' : 'block' }} variant="outlined" component={Link} to="/login" >{t('login')}</Button>
-          <Box sx={{ display: currentUser ? 'block' : 'none' }}>
+          <Box sx={{ display: { xs: "block", sm: "none" } }}>
             <IconButton
-              aria-label="idk"
-              aria-controls="logged-in-appbar"
+              size="large"
+              aria-controls="menu-appbar"
               aria-haspopup="true"
-              onClick={handleLoggedInMenu}
+              onClick={handleOpenNavMenu}
+              color="inherit"
             >
-              <AccountCircleIcon/>
+              <MenuIcon />
             </IconButton>
             <Menu
-              id="logged-in-appbar"
-              anchorEl={anchorElLoggedIn}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               keepMounted
-              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-              open={Boolean(anchorElLoggedIn)}
-              onClose={handleCloseLoggedInMenu}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
             >
-              <MenuItem onClick={(e) => { handleEditProfile(e);  }}>{t('editProfile')}</MenuItem>
-              <MenuItem onClick={handleLogout}>{t('logout')}</MenuItem>
+              <MenuItem onClick={(e) => handleCloseNavMenu(e)}>
+                <Link href="/Login">{t("login")}</Link>
+              </MenuItem>
             </Menu>
           </Box>
-        </Box>
-        <Box sx={{ display:{xs:'block', sm:'none'}}}>
-          <IconButton
-            size="large"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleOpenNavMenu} 
-            color="inherit"
-          >
-            <MenuIcon/>
-          </IconButton>
-          <Menu 
-            id="menu-appbar"
-            anchorEl={anchorElNav}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={Boolean(anchorElNav)}
-            onClose={handleCloseNavMenu}>
-            <MenuItem component={Link} to="/Login" onClick={(e) => handleCloseNavMenu(e)}>
-              {t('login')}
-            </MenuItem>
-          </Menu>
-        </Box>
-      </Toolbar>
-    </AppBar> 
-  </>
-  )
+        </Toolbar>
+      </AppBar>
+    </>
+  );
 }
 
 export default GlobalNavBar
